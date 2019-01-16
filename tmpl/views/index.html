@@ -32,7 +32,13 @@
                 </tbody>
             </table>
         {{else}}
-            识别数据失败,请确认单号规则及长度是否设置正确~
+            <span class="error">
+                {{if table.orders.length>1}}
+                存在{{=table.orders.length}}列可能包含单号的列，暂无法处理这样的数据
+                {{else}}
+                识别数据失败,请确认单号规则及长度是否设置正确
+                {{/if}}
+            </span>
         {{/if}}
     {{else}}
         请粘贴内容
@@ -40,6 +46,6 @@
 </div>
 <div class="result">
     {{if table}}
-        原始{{=table.rows}}行{{=table.cols}}列数据，{{if table.orders.length}}检测到订单号列为：{{=table.orders}}{{else}}未检测到订单列{{/if}}
+        原始{{=table.rows}}行{{=table.cols}}列数据，{{if table.orders.length}}检测到可能是订单号的列是：{{each table.orders as order index last}}{{=(order|0)+1}}{{if !last}}、{{/if}}{{/each}}{{else}}未检测到订单列{{/if}}
     {{/if}}
 </div>

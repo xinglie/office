@@ -48,7 +48,7 @@ export default Magix.View.extend({
         let len = data.len;
         let reg = new RegExp(`^${rule}{${len}}$`);
         let maybeCols = {},
-            chekedCols = {},
+            checkedCols = {},
             cols = 0;
         for (let line of result) {
             let ci = 0;
@@ -62,10 +62,11 @@ export default Magix.View.extend({
                             break;
                         }
                     }
-                    if (f && !chekedCols[ci]) {
+                    if (f && !checkedCols[ci]) {
                         maybeCols[ci] = 1;
                     } else {
-                        chekedCols[ci] = 1;
+                        delete maybeCols[ci];
+                        checkedCols[ci] = 1;
                     }
                 }
                 ci++;
