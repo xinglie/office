@@ -1,0 +1,45 @@
+<div class="filters">
+    <div class="item">
+        单号规则：
+    </div>
+    <select class="item dd" mx-change="@{change.rule}()">
+        {{each rules as {key,text}}}
+        <option value="{{=key}}" selected="{{key==rule}}?">{{=text}}</option>
+        {{/each}}
+    </select>
+    <div class="item ml30">
+        单号长度：
+    </div>
+    <select class="item dd" mx-change="@{change.len}()">
+        {{for(let i=lens[0];i<=lens[1];i++)}}
+            <option selected="{{i==len}}?">{{=i}}</option>
+        {{/for}}
+    </select>
+    <button class="btn btn-brand ml30{{if !table||!table.success}} none{{/if}}" mx-click="@{copy}()">复制表格内容</button>
+</div>
+<div class="result">
+    {{if table}}
+        {{if table.success}}
+            <table class="table" id="result_{{=id}}">
+                <tbody>
+                    {{each table.grid as cells}}
+                    <tr>
+                        {{each cells as cell}}
+                            <td style="width:{{=100/table.cols}}%">{{=cell}}</td>
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        {{else}}
+            识别数据失败,请确认单号规则及长度是否设置正确~
+        {{/if}}
+    {{else}}
+        请粘贴内容
+    {{/if}}
+</div>
+<div class="result">
+    {{if table}}
+        原始{{=table.rows}}行{{=table.cols}}列数据，{{if table.orders.length}}检测到订单号列为：{{=table.orders}}{{else}}未检测到订单列{{/if}}
+    {{/if}}
+</div>

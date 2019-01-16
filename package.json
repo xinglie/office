@@ -1,0 +1,16 @@
+{
+  "name": "office",
+  "description": "office tools",
+  "version": "1.0.0",
+  "author": "kooboy_li <kooboy_li@163.com>",
+  "dependencies": {
+    "@types/jquery": "3.3.22",
+    "del": "3.0.0",
+    "gulp": "3.9.1",
+    "gulp-concat": "2.6.1",
+    "gulp-terser-scoped": "^1.0.0",
+    "gulp-watch": "5.0.1",
+    "typescript": "3.1.6"
+  },
+  "private": true
+}
