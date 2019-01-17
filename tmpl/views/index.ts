@@ -19,7 +19,7 @@ let OrderRules = [{
 let OrderLength = [5, 30];
 let OrderRulesMap = Magix.toMap(OrderRules, 'key');
 let Settings = {
-    br: /[\r\n]/,
+    br: /(?:\r\n|\r|\n)/,
     cell: /\t/,
     spliter: /[,，]/
 };
