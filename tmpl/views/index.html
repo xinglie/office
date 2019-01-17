@@ -15,6 +15,15 @@
             <option selected="{{i==len}}?">{{=i}}</option>
         {{/for}}
     </select>
+    <div class="item ml30">
+        忽略前：
+    </div>
+    <select class="item dd" mx-change="@{change.ignore}()">
+        {{for(let i=ignores[0];i<=ignores[1];i++)}}
+            <option selected="{{i==first}}?">{{=i}}</option>
+        {{/for}}
+    </select>
+    <div class="ml5">行</div>
     <button class="btn btn-brand ml30{{if !table||!table.success}} none{{/if}}" mx-click="@{copy}()">复制表格内容</button>
 </div>
 <div class="result">

@@ -22,13 +22,16 @@ let Settings = {
     br: /[\r\n]/,
     cell: /\t/,
     spliter: /[,，]/
-}
+};
+let IgnoreFirst = [0, 10];
 export default Magix.View.extend({
     tmpl: '@index.html',
     render() {
         this.digest({
             rule: 1,
             len: 10,
+            ignores: IgnoreFirst,
+            first: 1,
             rules: OrderRules,
             lens: OrderLength
         });
@@ -49,28 +52,36 @@ export default Magix.View.extend({
         let reg = new RegExp(`^${rule}{${len}}$`);
         let maybeCols = {},
             checkedCols = {},
-            cols = 0;
+            cols = 0,
+            fi = 0,
+            first = data.first | 0;
         for (let line of result) {
             let ci = 0;
-            for (let cell of line) {
-                if (cell && cell.trim()) {
-                    let cs = cell.trim().split(Settings.spliter);
-                    let f = 1;
-                    for (let c of cs) {
-                        if (!reg.test(c)) {
-                            f = 0;
-                            break;
+            if (fi >= first) {
+                for (let cell of line) {
+                    if (cell && cell.trim()) {
+                        let cs = cell.trim().split(Settings.spliter);
+                        let f = 1;
+                        for (let c of cs) {
+                            if (!reg.test(c)) {
+                                if (ci == 5) {
+                                    console.log(c, line, cell);
+                                }
+                                f = 0;
+                                break;
+                            }
+                        }
+                        if (f && !checkedCols[ci]) {
+                            maybeCols[ci] = 1;
+                        } else {
+                            delete maybeCols[ci];
+                            checkedCols[ci] = 1;
                         }
                     }
-                    if (f && !checkedCols[ci]) {
-                        maybeCols[ci] = 1;
-                    } else {
-                        delete maybeCols[ci];
-                        checkedCols[ci] = 1;
-                    }
+                    ci++;
                 }
-                ci++;
             }
+            fi++;
             if (line.length > cols) {
                 cols = line.length;
             }
@@ -125,6 +136,14 @@ export default Magix.View.extend({
         let option = target.options[target.selectedIndex];
         this.digest({
             len: option.value,
+            table: null
+        });
+    },
+    '@{change.ignore}<change>'(e) {
+        let target = e.eventTarget as HTMLSelectElement;
+        let option = target.options[target.selectedIndex];
+        this.digest({
+            first: option.value,
             table: null
         });
     },
