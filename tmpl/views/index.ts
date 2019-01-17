@@ -129,16 +129,14 @@ export default Magix.View.extend({
         });
     },
     '@{copy}<click>'() {
-        setTimeout(() => {
-            let range = document.createRange();
-            range.selectNode(Magix.node('result_' + this.id));
-            let selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            document.execCommand('copy');
-            selection.removeAllRanges();
-            alert('已复制');
-        }, 0);
+        let range = document.createRange();
+        range.selectNode(Magix.node('result_' + this.id));
+        let selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand('copy');
+        selection.removeAllRanges();
+        alert('已复制');
     },
     '$doc<paste>'(e: ClipboardEvent) {
         let data = e.clipboardData.getData('text/plain');

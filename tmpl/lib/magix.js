@@ -1,6 +1,6 @@
 //#snippet;
 //#exclude = all;
-/*!5.0.0 Licensed MIT*/
+/*!5.0.1 Licensed MIT*/
 /*
 author:kooboy_li@163.com
 loader:cmd
@@ -54,20 +54,7 @@ let Mx_Cfg = {
     }
 };
 let IsPrimitive = args => !args || typeof args != 'object';
-let UpdateData = (newData, oldData, keys, unchanged) => {
-    let changed = 0,
-        now, old, p;
-    for (p in newData) {
-        now = newData[p];
-        old = oldData[p];
-        if ((!IsPrimitive(now) || old !== now) && !Has(unchanged, p)) {
-            keys[p] = 1;
-            changed = 1;
-        }
-        oldData[p] = now;
-    }
-    return changed;
-};
+
 let NodeIn = (a, b, r) => {
     if (a && b) {
         r = a == b;
@@ -2234,9 +2221,22 @@ Assign(View[Prototype], MxEvent, {
      *     console.log(this.get('a'));
      * }
      */
-    set(obj, unchanged) {
-        let me = this;
-        me['k'] = UpdateData(obj, me['e'], me['j'], unchanged) || me['k'];
+    set(newData, unchanged) {
+        let me = this,
+            oldData = me['e'],
+            keys = me['j'];
+        let changed = me['k'],
+            now, old, p;
+        for (p in newData) {
+            now = newData[p];
+            old = oldData[p];
+            if ((!IsPrimitive(now) || old !== now) && !Has(unchanged, p)) {
+                keys[p] = 1;
+                changed = 1;
+            }
+            oldData[p] = now;
+        }
+        me['k'] = changed;
         return me;
     },
     /**
