@@ -3,113 +3,48 @@
 */
 import Magix from 'magix';
 Magix.applyStyle('@index.less');
-let OrderRules = [{
-    key: 1,
-    text: '纯数字',
-    rule: '[0-9]'
-}, {
-    key: 2,
-    text: '纯字母',
-    rule: '[a-zA-Z]'
-}, {
-    key: 3,
-    text: '数字与字母混合',
-    rule: '[a-zA-Z0-9]'
-}];
-let OrderLength = [5, 30];
-let OrderRulesMap = Magix.toMap(OrderRules, 'key');
+let ColsCount = [1, 20];
 let Settings = {
     br: /(?:\r\n|\r|\n)/,
-    cell: /\t/,
-    spliter: /[,，]/
+    cell: /\t/
 };
-let IgnoreFirst = [0, 10];
+let escapedRegexp = /[\-#$\^*()+\[\]{}|\\,.?\s]/g;
+let escapeRegexp = s => (s + '').replace(escapedRegexp, '\\$&');
 export default Magix.View.extend({
     tmpl: '@index.html',
     render() {
         this.digest({
-            rule: 1,
-            len: 10,
-            ignores: IgnoreFirst,
-            first: 1,
-            rules: OrderRules,
-            lens: OrderLength
+            col: 5,
+            chars: ',，',
+            cols: ColsCount
         });
     },
     '@{get.cells}'(data) {
         let lines = data.split(Settings.br);
         let result = [];
         for (let line of lines) {
-            let cs = line.split(Settings.cell);
-            result.push(cs);
+            if (line && line.trim()) {
+                let cs = line.split(Settings.cell);
+                result.push(cs);
+            }
         }
         return result;
     },
-    '@{get.order.meta}'(result) {
-        let data = this.get();
-        let rule = OrderRulesMap[data.rule].rule;
-        let len = data.len;
-        let reg = new RegExp(`^${rule}{${len}}$`);
-        let maybeCols = {},
-            checkedCols = {},
-            cols = 0,
-            fi = 0,
-            first = data.first | 0;
-        for (let line of result) {
-            let ci = 0;
-            if (fi >= first) {
-                for (let cell of line) {
-                    if (cell && cell.trim()) {
-                        let cs = cell.trim().split(Settings.spliter);
-                        let f = 1;
-                        for (let c of cs) {
-                            if (!reg.test(c)) {
-                                if (ci == 5) {
-                                    console.log(c, line, cell);
-                                }
-                                f = 0;
-                                break;
-                            }
-                        }
-                        if (f && !checkedCols[ci]) {
-                            maybeCols[ci] = 1;
-                        } else {
-                            delete maybeCols[ci];
-                            checkedCols[ci] = 1;
-                        }
-                    }
-                    ci++;
-                }
-            }
-            fi++;
-            if (line.length > cols) {
-                cols = line.length;
-            }
-        }
-        return {
-            orders: Magix.keys(maybeCols),
-            cols,
-            rows: result.length
-        };
-    },
     '@{get.table}'(data) {
         let lines = this['@{get.cells}'](data);
-        let meta = this['@{get.order.meta}'](lines);
         let table = {
-            success: false,
-            rows: meta.rows,
-            cols: meta.cols,
-            orders: meta.orders,
+            from: lines.length,
+            to: 0,
             grid: []
         };
-        if (meta.orders.length == 1) {
-            table.success = true;
-            let col = meta.orders[0] | 0;
-            let grid = [];
-            for (let line of lines) {
+        let ref = this.get();
+        let col = Math.max((ref.col | 0) - 1, 0);
+        let grid = [];
+        let spliter = new RegExp(`[${escapeRegexp(ref.chars)}]`);
+        for (let line of lines) {
                 let cell = line[col];
                 if (cell && cell.trim()) {
-                    let cs = cell.trim().split(Settings.spliter);
+                    let cs = cell.trim().split(spliter);
                     for (let c of cs) {
                         let copy = line.slice();
                         copy[col] = c;
@@ -118,32 +53,23 @@ export default Magix.View.extend({
                 } else {
                     grid.push(line);
                 }
-            }
-            table.grid = grid;
         }
+        table.grid = grid;
+        table.to = grid.length;
         return table;
     },
-    '@{change.rule}<change>'(e: Magix5.MagixMouseEvent) {
+    '@{change.col}<change>'(e: Magix5.MagixMouseEvent) {
         let target = e.eventTarget as HTMLSelectElement;
         let option = target.options[target.selectedIndex];
         this.digest({
-            rule: option.value,
+            col: option.value,
             table: null
         });
     },
-    '@{change.len}<change>'(e) {
-        let target = e.eventTarget as HTMLSelectElement;
-        let option = target.options[target.selectedIndex];
+    '@{change.chars}<input>'(e) {
+        let target = e.eventTarget as HTMLInputElement;
         this.digest({
-            len: option.value,
-            table: null
-        });
-    },
-    '@{change.ignore}<change>'(e) {
-        let target = e.eventTarget as HTMLSelectElement;
-        let option = target.options[target.selectedIndex];
-        this.digest({
-            first: option.value,
+            chars: target.value.trim(),
             table: null
         });
     },

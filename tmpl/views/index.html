@@ -1,60 +1,38 @@
 <div class="filters">
     <div class="item">
-        单号规则：
+        第：
     </div>
-    <select class="item dd" mx-change="@{change.rule}()">
-        {{each rules as {key,text}}}
-        <option value="{{=key}}" selected="{{key==rule}}?">{{=text}}</option>
-        {{/each}}
-    </select>
-    <div class="item ml30">
-        单号长度：
-    </div>
-    <select class="item dd" mx-change="@{change.len}()">
-        {{for(let i=lens[0];i<=lens[1];i++)}}
-            <option selected="{{i==len}}?">{{=i}}</option>
+    <select class="item dd" mx-change="@{change.col}()">
+        {{for(let i=cols[0];i<=cols[1];i++)}}
+        <option selected="{{i==col}}?">{{=i}}</option>
         {{/for}}
     </select>
-    <div class="item ml30">
-        忽略前：
+    <div class="item ml5">
+        列按字符：
     </div>
-    <select class="item dd" mx-change="@{change.ignore}()">
-        {{for(let i=ignores[0];i<=ignores[1];i++)}}
-            <option selected="{{i==first}}?">{{=i}}</option>
-        {{/for}}
-    </select>
-    <div class="ml5">行</div>
-    <button class="btn btn-brand ml30{{if !table||!table.success}} none{{/if}}" mx-click="@{copy}()">复制表格内容</button>
+    <input class="item ipt" value="{{=chars}}" mx-input="@{change.chars}()" />
+    <div class="item ml5">拆分</div>
+    <button class="btn btn-brand ml30{{if !table}} none{{/if}}" mx-click="@{copy}()">复制表格内容</button>
 </div>
 <div class="result">
     {{if table}}
-        {{if table.success}}
-            <table class="table" id="result_{{=id}}">
-                <tbody>
-                    {{each table.grid as cells}}
-                    <tr>
-                        {{each cells as cell}}
-                            <td style="width:{{=100/table.cols}}%">{{=cell}}</td>
-                        {{/each}}
-                    </tr>
+        <table class="table" id="result_{{=id}}">
+            <tbody>
+                {{each table.grid as cells}}
+                <tr>
+                    {{each cells as cell}}
+                        <td style="width:{{=100/table.cols}}%">{{=cell}}</td>
                     {{/each}}
-                </tbody>
-            </table>
-        {{else}}
-            <span class="error">
-                {{if table.orders.length>1}}
-                存在{{=table.orders.length}}列可能包含单号的列，暂无法处理这样的数据
-                {{else}}
-                识别数据失败,请确认单号规则及长度是否设置正确
-                {{/if}}
-            </span>
-        {{/if}}
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
     {{else}}
         请粘贴内容
     {{/if}}
 </div>
 <div class="result">
     {{if table}}
-        原始{{=table.rows}}行{{=table.cols}}列数据，{{if table.orders.length}}检测到可能是订单号的列是：{{each table.orders as order index last}}{{=(order|0)+1}}{{if !last}}、{{/if}}{{/each}}{{else}}未检测到订单列{{/if}}
+    由原{{=table.from}}行拆分成{{=table.to}}行
     {{/if}}
 </div>

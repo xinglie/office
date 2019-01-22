@@ -576,6 +576,9 @@ let Vframe_Root = (rootId, e) => {
         rootId = Mx_Cfg.rootId;
         e = GetById(rootId);
         if (!e) {
+            if (DEBUG) {
+                console.error('can not find element:"' + rootId + '",use document.body as default');
+            }
             e = Doc_Body;
         }
         Vframe_RootVframe = new Vframe(e);
