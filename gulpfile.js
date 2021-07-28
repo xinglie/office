@@ -1,4 +1,4 @@
-let tmplFolder = 'tmpl'; //template folder
+t:let tmplFolder = 'tmpl'; //template folder
 let srcFolder = 'src'; //source folder
 let buildFolder = 'build';
 
@@ -38,16 +38,16 @@ combineTool.config({
 
 gulp.task('cleanSrc', () => del(srcFolder));
 
-gulp.task('combine', ['cleanSrc'], () => {
+gulp.task('combine', gulp.series('cleanSrc', () => {
     return combineTool.combine().then(() => {
         console.log('complete');
     }).catch(function (ex) {
         console.log('gulpfile:', ex);
         process.exit();
     });
-});
+}));
 
-gulp.task('watch', ['combine'], () => {
+gulp.task('watch', gulp.series('combine', () => {
     watch(tmplFolder + '/**/*', e => {
         if (fs.existsSync(e.path)) {
             var c = combineTool.processFile(e.path);
@@ -58,14 +58,14 @@ gulp.task('watch', ['combine'], () => {
             combineTool.removeFile(e.path);
         }
     });
-});
+}));
 
 var terser = require('gulp-terser-scoped');
 gulp.task('cleanBuild', () => {
     return del(buildFolder);
 });
 
-gulp.task('build', ['cleanBuild', 'cleanSrc'], () => {
+gulp.task('build', gulp.series('cleanBuild', 'cleanSrc', () => {
     combineTool.config({
         debug: false
     });
@@ -84,9 +84,9 @@ gulp.task('build', ['cleanBuild', 'cleanSrc'], () => {
     }).catch(ex => {
         console.error(ex);
     });
-});
+}));
 
-gulp.task('dist', ['cleanSrc'], () => {
+gulp.task('dist', gulp.series('cleanSrc', () => {
     return del('./dist').then(() => {
         combineTool.config({
             debug: false
@@ -99,7 +99,7 @@ gulp.task('dist', ['cleanSrc'], () => {
             .pipe(concat('office.js'))
             .pipe(gulp.dest('./dist'));
     });
-});
+}));
 
 gulp.task('cdist', () => {
     return gulp.src('./dist/*.js')

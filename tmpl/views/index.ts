@@ -1,8 +1,8 @@
 /*
     author:xinglie.lkf@alibaba-inc.com
 */
-import Magix from 'magix';
-Magix.applyStyle('@index.less');
+import Magix from 'magix5';
+Magix.applyStyle('@:./index.less');
 let ColsCount = [1, 20];
 let Settings = {
     br: /(?:\r\n|\r|\n)/,
@@ -11,9 +11,10 @@ let Settings = {
 let escapedRegexp = /[\-#$\^*()+\[\]{}|\\,.?\s]/g;
 let escapeRegexp = s => (s + '').replace(escapedRegexp, '\\$&');
 export default Magix.View.extend({
-    tmpl: '@index.html',
+    tmpl: '@:./index.html',
     render() {
         this.digest({
+            id:this.id,
             col: 5,
             chars: ',，',
             cols: ColsCount
@@ -42,17 +43,17 @@ export default Magix.View.extend({
         let grid = [];
         let spliter = new RegExp(`[${escapeRegexp(ref.chars)}]`);
         for (let line of lines) {
-                let cell = line[col];
-                if (cell && cell.trim()) {
-                    let cs = cell.trim().split(spliter);
-                    for (let c of cs) {
-                        let copy = line.slice();
-                        copy[col] = c;
-                        grid.push(copy);
-                    }
-                } else {
-                    grid.push(line);
+            let cell = line[col];
+            if (cell && cell.trim()) {
+                let cs = cell.trim().split(spliter);
+                for (let c of cs) {
+                    let copy = line.slice();
+                    copy[col] = c;
+                    grid.push(copy);
                 }
+            } else {
+                grid.push(line);
+            }
         }
         table.grid = grid;
         table.to = grid.length;
